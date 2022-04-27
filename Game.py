@@ -1,4 +1,5 @@
 from Player import Player
+from RandomAgent import RandomAgent
 from linearRandomAgent import linearRandomAgent
 from qLearningAgent import qLearningAgent
 
@@ -36,6 +37,8 @@ class Game:
             player = linearRandomAgent(name, type, index)
         elif type == 3:
             player = qLearningAgent(name, type, index)
+        elif type == 4:
+            player = RandomAgent(name, type, index)
         self.players.append(player)
         self.resetPlayers.append(player)
 
