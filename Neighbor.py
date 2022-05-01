@@ -53,6 +53,7 @@ def startgame():
 
                 if game.getState() == 0 and game.getRound():
                     game.editRound()
+                    originalValue = deck.getCard(0).getValue()
                     if result == 't':
                         deck.swap(game.getState(), game.getNumPlayers())
                         print(
@@ -61,7 +62,8 @@ def startgame():
                     else:
                         print(
                             'The Dealer: ' + str(game.getDealer().getName()) + ' flips over the ' + str(
-                                deck.getCard(0).getName()))
+                                deck.getCard(0).getName()))        
+                    
                     i = 0
                     min = 14
                     index = -1
@@ -77,14 +79,14 @@ def startgame():
                             game.getPlayer(i).subValue()
                             
                             if game.getPlayer(i).getType() == 3:
-                                game.getPlayer(i).updateQValues(game.getState(), prev, result, -1) #lost a quarter. bad move, bot.
+                                game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, -10) #lost a quarter. bad move, bot.
                                 
-                            print(str(game.getPlayer(i).getName()) + ' lost a quarter')
+                            print(str(game.getPlayer(i).getName()) + ' lost a quarter', end=', ')
                             if game.getPlayer(i).getValue() <= 0:
                                 print('and is out of the game.')
                                 #update qlearning
                                 if game.getPlayer(i).getType() == 3:
-                                    game.getPlayer(i).updateQValues(game.getState(), prev, result, -10) #lost the game.
+                                    game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, -10) #lost the game.
                                 game.removePlayer(i)
                                 if game.getNumPlayers() == 1:
                                     print(str(game.getPlayer(0).getName())+ ' is the winner!')
@@ -92,7 +94,7 @@ def startgame():
                                     wins[game.getPlayer(0).getIndex()] += 1
                                     #update qlearning
                                     if game.getPlayer(0).getType() == 3:
-                                        game.getPlayer(0).updateQValues(game.getState(), prev, result, 10) #lost a quarter. bad move, bot.
+                                        game.getPlayer(0).updateQValues(deck.getCard(0).getValue(), result, originalValue, 10) #a winnar is you!
                                     game.removePlayer(0)
                                     game.setActive()
                             else:
@@ -101,7 +103,7 @@ def startgame():
                             print(str(game.getPlayer(i).getName()) + ' had '+deck.getCard(i).getName()+' and has '+str(game.getPlayer(i).getValue())+' coins left.')
                             #update qlearning
                             if game.getPlayer(i).getName() == 3:
-                                game.getPlayer(i).updateQValues(game.getState(), prev, result, 1) #someone other than you lost a quarter. good job.
+                                game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, 10) #someone other than you lost a quarter. good job.
                         i = i+1
                     if game.getActive() == True:
                         game.nextDealer()
@@ -139,7 +141,7 @@ def startgame():
                         game.incState()
                         prev = None
                         if game.getPlayer(game.getState()).getName() == 3:
-                            game.getPlayer(game.getState()).updateQValues(game.getState(), prev, result, 0)
+                            game.getPlayer(game.getState()).updateQValues(deck.getCard(game.getState()).getValue(), prev, result, 0)
                 print
                     
         print('---------------------------------')
