@@ -1,6 +1,7 @@
 from Game import Game
 from Deck import Deck
 
+
 def startgame():
     game = Game()
     deck = Deck()
@@ -25,6 +26,7 @@ def startgame():
     while roundsLeft > 0:
 
         while game.getNumPlayers() > 0:
+
             print('Player '+game.getDealer().getName()+' is the dealer')
             deck.shuffle()
             if(game.getDealer().getType() == 0): #is the dealer human?
@@ -33,6 +35,7 @@ def startgame():
                 print(game.getDealer().getName()+' has dealt the cards.')
             i = 0
             while i < game.getNumPlayers():
+
                 if game.getPlayer(i).getType() == 1:
                     print('Your card is the ' + str(deck.getCard(i).getName()))
                 i = i + 1
@@ -46,6 +49,10 @@ def startgame():
                 if game.getPlayer(game.getState()).getType() == 1: #human player
                     print('It is your turn, player '+game.getPlayer(game.getState()).getName()+'. You have the '+str(deck.getCard(game.getState()).getName()))
                     result = input('Type \'s\' for stay, or \'t\' for trade.\n')
+                elif game.getPlayer(game.getState()).getType() == 3:
+                    result = game.getPlayer(game.getState()).turn(deck.getCard(game.getState()).getValue(), game.getNumPlayers(), prev, actions)
+                    originalValue = deck.getCard(game.getState()).getValue()
+                    qresult = result
                 else:
                     result = game.getPlayer(game.getState()).turn(deck.getCard(game.getState()).getValue(), game.getNumPlayers(), prev, actions)
 
@@ -53,7 +60,6 @@ def startgame():
 
                 if game.getState() == 0 and game.getRound():
                     game.editRound()
-                    originalValue = deck.getCard(0).getValue()
                     if result == 't':
                         deck.swap(game.getState(), game.getNumPlayers())
                         print(
@@ -75,35 +81,31 @@ def startgame():
                     print('The lowest card value was ' + str(min))
                     i = 0
                     while i < game.getNumPlayers():
+                        if game.getPlayer(i).getType() == 3:
+                            if deck.getCard(i).getValue() == min:
+                                nextState = 0
+                                nextMove = 's'
+                            else:
+                                nextState = 13
+                                nextMove = 's'
+                            game.getPlayer(i).updateQValues(originalValue, qresult, nextState, nextMove,0)  # lost a quarter. bad move, bot.
                         if deck.getCard(i).getValue() == min:
                             game.getPlayer(i).subValue()
-                            
-                            if game.getPlayer(i).getType() == 3:
-                                game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, -10) #lost a quarter. bad move, bot.
-                                
-                            print(str(game.getPlayer(i).getName()) + ' lost a quarter', end=', ')
+                            print(str(game.getPlayer(i).getName()) + ' lost a quarter')
                             if game.getPlayer(i).getValue() <= 0:
                                 print('and is out of the game.')
-                                #update qlearning
-                                if game.getPlayer(i).getType() == 3:
-                                    game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, -10) #lost the game.
                                 game.removePlayer(i)
                                 if game.getNumPlayers() == 1:
                                     print(str(game.getPlayer(0).getName())+ ' is the winner!')
                                     record.append(str(game.getPlayer(0).getName())+ ' is the winner!')
                                     wins[game.getPlayer(0).getIndex()] += 1
-                                    #update qlearning
-                                    if game.getPlayer(0).getType() == 3:
-                                        game.getPlayer(0).updateQValues(deck.getCard(0).getValue(), result, originalValue, 10) #a winnar is you!
                                     game.removePlayer(0)
                                     game.setActive()
                             else:
                                 print('and has '+str(game.getPlayer(i).getValue())+' coins left.')
                         else:
                             print(str(game.getPlayer(i).getName()) + ' had '+deck.getCard(i).getName()+' and has '+str(game.getPlayer(i).getValue())+' coins left.')
-                            #update qlearning
-                            if game.getPlayer(i).getName() == 3:
-                                game.getPlayer(i).updateQValues(deck.getCard(i).getValue(), result, originalValue, 10) #someone other than you lost a quarter. good job.
+
                         i = i+1
                     if game.getActive() == True:
                         game.nextDealer()
@@ -140,9 +142,8 @@ def startgame():
                         print(str(game.getPlayer(game.getState()).getName())+' stayed')
                         game.incState()
                         prev = None
-                        if game.getPlayer(game.getState()).getName() == 3:
-                            game.getPlayer(game.getState()).updateQValues(deck.getCard(game.getState()).getValue(), prev, result, 0)
-                print
+
+
                     
         print('---------------------------------')
         roundsLeft -= 1
@@ -152,10 +153,10 @@ def startgame():
             game.getPlayer(x).reset()
             x += 1
     for y in range(0, len(wins)):
-        print(wins[y], end=", ")
+        print(wins[y])
         nums_wins.append(wins[y])
 
-
     return player_types, nums_wins, record
+
 
 #startgame()
