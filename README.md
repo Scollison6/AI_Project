@@ -1,6 +1,6 @@
 # Introduction
 
-**Screw Your Neighbor** is a popular card game. This project allows your play this game with other human or bots. There are 3 types of bots: a linear random agent, a totally random agent and a learning agent using **Q-learning**.
+**Screw Your Neighbor** is a popular card game. This project allows you play this game with human or bots. There are 3 types of bots: a linear random agent, a totally random agent and a learning agent using **Q-learning**.
 
 # How to Play
 
@@ -19,5 +19,5 @@
   How many rounds would you like to play?1
   ```
 
-- Run `Records.py` allows recording the winner of each round in a game into a txt file and build a pie chart base on the winning percentage of each player. 
+- Run `Records.py` allows recording the winner of each round in a game into a txt file and build a pie chart based on the winning percentage of each player. 
 
